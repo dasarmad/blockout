@@ -4,11 +4,13 @@
 <head>
     <meta name="description" content="Remake of classic puzzle game Blockout (3d tetris) in HTML 5" />
     <title>BlockOut</title>
-    <link type="text/css" rel="stylesheet" href="css/cubeout.css" />
-    <link type="text/css" rel="stylesheet" href="css/style.css" />
+    <link type="text/css" rel="stylesheet" href="css/cubeout.css">
+    <link type="text/css" rel="stylesheet" href="css/style.css">
     <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="js/jquery.cookie.js"></script>
+    <script type="text/javascript" src="js/cookie.js"></script>
     <script type="text/javascript" src="js/cubeout.js"></script>
+	
 </head>
 
 <body>
