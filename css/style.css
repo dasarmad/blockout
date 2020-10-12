@@ -1,0 +1,435 @@
+body{
+	background: #000;
+}
+#difficulty{
+	display: block !important;
+}
+span#speed {
+    position: absolute;
+    top: -70px;
+    left: -630px;
+    width: 50px !important;
+    height: 458px;
+    border: 2px solid #0000AA;
+}
+div#pst_rlt_cs {
+    position: relative;
+    display: inline-block;
+}
+span#speed span.bottom {}
+
+span#speed span.button {
+    display: block;
+    font-size: 20px;
+    margin: 17px 0;
+    color: #89572F !important;
+    font-weight: bolder;
+    padding: 0;
+    margin-top: -7px;
+}
+
+span#speed span.button.on {
+    color: #fff;
+    font-size: 40px !important;
+    padding: 0;
+}
+span#pit {}
+
+div#difficulty {
+    position: absolute;
+    top: 22%;
+    right: -22%;
+    border: 2px solid #0000AA;
+    width: 150px;
+    height: 400px;
+}
+
+div#difficulty span {
+    display: inline-block;
+    font-size: 12px;
+    width: 80%;
+}
+div#difficulty span.button {
+	color: #00AA00;
+}
+div#difficulty span.button.on {
+    color: #00AA00;
+    font-size: 20px;
+}
+span#pieces {
+    border: 2px solid #0000AA;
+    box-sizing: border-box;
+    margin-left: 3px;
+    margin-top: 3px;
+}
+
+span#pit {
+    border: 2px solid #0000AA;
+    margin-top: 0px;
+}
+
+span#rotSpeed {
+    border: 2px solid #0000AA;
+    margin-top: 3px;
+}
+span#sped_label_label {
+    font-size: 15px !important;
+    border-bottom: 3px solid #0000AA;
+    padding-bottom: 3px;
+    width: 100% !important;
+}
+div#score {
+	position: absolute;
+	top: 26%;
+	right: -18.5%;
+	font-size: 30px;
+	width: 116px;
+	border: 2px solid #0000AA;
+	font-family: sans-serif;
+	color: #00AA00;
+	padding-right: 2px;
+	display: block !important;
+}
+#score_label{
+	right: -22%;
+	position: absolute;
+	top: 23%;
+	font-size: 13px;
+	width: 156px;
+	text-transform: uppercase;
+	color:  #ADD8E6;
+}
+div#over {
+    display: inline-block;
+    width: 40%;
+}
+span.pit_label_text {
+    margin-top: 12px;
+    margin-bottom: 3px;
+    font-size: 15px !important;
+    font-family: inherit;
+    letter-spacing: 3px;
+    color:  #ADD8E6;
+}
+span.speed_label_text {
+    margin-top: 66px;
+    font-size: 15px !important;
+    letter-spacing: 2px;
+    color: #ADD8E6;
+}
+
+span#keys {
+    border: 2px solid #0000AA;
+    margin-top: 15px;
+    text-transform: uppercase;
+}
+
+span.pieces_label_text {
+    margin-top: 15px;
+    color:  #ADD8E6;
+    font-size: 15px !important;
+    letter-spacing: 3px;
+}
+span#pit span.button {
+    color: #89572F;
+}
+
+span#pieces span.button {
+    color: #89572F;
+    font-size: 16px;
+    width: 100%;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+span#pieces span.button.on {
+    color: #89572F;
+    font-size: 20px;
+    padding: 0;
+    margin: 0;
+}
+
+span#pit span.button.on {
+    color: #89572F;
+}
+span#sped_label_label {
+    font-size: 10px !important;
+    color: #ADD8E6;
+    font-weight: bolder;
+}
+.game-logo-cs {
+    position: absolute;
+    top: 10%;
+    right: -22%;
+}
+
+.game-logo-cs img {
+    width: 166px;
+}
+div#getGamerName {
+    width: 40%;
+}
+span#speed_label_details {
+    width: 102% !important;
+    padding: 0;
+    margin: 0;
+}
+span#rotSpeed span.button {
+    color: #00AA00;
+    text-transform: uppercase;
+}
+span#keys span.button {
+    font-size: 15px;
+    padding: 3px 0;
+}
+div#column {
+    position: absolute;
+    left: -36px;
+    height: 186px;
+    border: 2px solid #00AA00;
+    bottom: 96.3%;
+    border-top: 0;
+    border-bottom: 4px solid #00AA00;
+}
+
+canvas#screen2 {
+    padding: 3px;
+    margin-left: -3.5px;
+    width: 16.5px;
+    margin-top: -22px;
+}
+
+/* sourav_malo :: High Score Button Styling */
+.play-btn {
+  color: #009fa0;
+  font-size: 20px;
+  font-weight: 600;
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+a.play-btn {
+  color: #009fa0;
+  text-decoration: none;
+}
+
+a.play-btn:hover {
+  text-decoration: underline;
+}
+
+/* sourav_malo :: Score Board Styling */
+.scoreboard {
+  max-width: 1080px;
+  padding-left: 16px;
+  padding-right: 16px;
+  margin: 50px auto 0;
+  color: #fff;
+}
+
+.page-title {
+  font-weight: 700;
+  font-size: 36px;
+  padding: 10px 0;
+  text-align: center;
+  text-transform: capitalize;
+  letter-spacing: -1px;
+  word-spacing: 3px;
+  font-variant: small-caps;
+  margin: 10px 0 10px;
+  color: white;
+}
+
+.sb-filters-form {
+  margin-bottom: 32px;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.sb-filters .input-group {
+  width: 150px;
+  margin-right: 24px;
+}
+
+.sb-filters-form label {
+  display: block;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.sb-filters select {
+  width: 100%;
+  padding: 6px 32px;
+  border-radius: 100rem;
+  background-color: #444;
+  background-image: linear-gradient(to top, #444, #666);
+  color: #fff;
+  outline: 0;
+  border: 1px solid #888;
+}
+
+.sb-submit {
+  padding: 6px 32px;
+  border-radius: 100rem;
+  border: 1px solid #2d7;
+  background-color: #2d7;
+  font-weight: 500;
+  font-size: 15px;
+  color: #fff;
+  background-image: linear-gradient(to bottom, #2c6, #0b0);
+  font-family: sans-serif;
+  height: 32px;
+  width: 140px;
+  outline: 0;
+  cursor: pointer;
+}
+
+.sb-submit:hover {
+  background-image: linear-gradient(to top, #2c6, #0b0);
+}
+
+.sb-table {
+  border: 1px solid #fff;
+  font-size: 14px;
+}
+
+.sb-table a {
+  color: white;
+}
+
+.sb-thead {
+  background-color: #444444;
+}
+
+.sb-thead .sb-col {
+  font-weight: 500;
+}
+
+.sb-body {
+  background-color: #333333;
+}
+
+.sb-row {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+}
+
+.sb-col.rank, .sb-col.set, .sb-col.pit, .sb-col.level, .sb-col.score {
+  flex-basis: 8%;
+}
+
+.sb-col.ip-address, .sb-col.player, .sb-col.country, .sb-col.played-at {
+  flex-basis: 15%;
+}
+
+.first-row {
+  border-top: 1px solid #fff;
+}
+
+.first-row, .first-row a {
+  color: #F7EF29;
+  font-weight: 500;
+}
+
+.first-row .sb-col.rank .circle {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  background-color: #F7EF29;
+  color: black;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* sourav_malo :: Ask Username Styling */
+
+.username-input, .username-submit-btn {
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: 8px 5px;
+}
+
+.username-input.wrong {
+  border-color: red;
+}
+
+.username-rule {
+  display: block;
+  padding: 10px 5px;
+  border-radius: 5px;
+  background-color: black;
+  margin: 10px 0 20px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.username-submit-btn {
+  background: white;
+  border: none;
+  outline: none;
+  color: black;
+  padding: 8px 20px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.username-submit-btn.not-allowed {
+  cursor: not-allowed;
+}
+
+.username-submit-btn:hover {
+  background-color: rgb(255, 255, 255, .8);
+}
+
+.location .page-title {
+  font-size: 36px;
+  padding: 10px 0;
+  text-align: center;
+  text-transform: none;
+  letter-spacing: -1px;
+  word-spacing: 3px;
+  font-variant: none;
+  margin: 60px 0 16px;
+  color: white;
+}
+
+.location-information {
+  margin-top: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.location-details {
+  width: 300px;
+  margin-right: 20px;
+  border: 1px solid white;
+  color: white;
+}
+
+.location-details-item {
+  padding: 15px 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.location-details-item:nth-child(odd) {
+  background-color: #292929;
+}
+
+.location-details-item + .location-details-item {
+  border-top: 1px solid white;
+}
+
+.location-map {
+  width: 725px;
+  height: 400px;
+  border: 1px solid white;
+}
