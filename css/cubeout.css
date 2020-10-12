@@ -12,13 +12,8 @@ body {
   color: #fff;
   text-shadow: #000 0px 0px 0.1em;
 }
-
-center {
-  padding: 2px  0;
-}
-
 h1 {
-  margin: 0 0 0.5em;
+  margin: 1em 0 0.5em;
   color: #fff;
   font-size: 3em;
   font-variant: small-caps;
@@ -60,12 +55,9 @@ h1 a:hover {
 }
 #screen,
 #dummy {
-    padding-top: 2em;
-    padding-right: 3em;
-    padding-bottom: 3em;
-    padding-left: 3em;  
-    background: #000;
-  margin-top: 1px;
+  padding: 3em;
+  background: #000;
+  margin-top: 15px;
 }
 
 #dummy {
@@ -133,7 +125,7 @@ h1 a:hover {
 }
 
 #description {
-  background: rgba(60, 60, 60, 0.15);
+  background: rgba(60, 60, 60, 0.75);
   color: #eee;
   margin: 3em 0 2em;
   padding: 1em 0;
@@ -296,7 +288,7 @@ h1 a:hover {
   text-align: center;
   font-size: 0.9em;
   color: #666;
-  margin: 1.5em 0 0;
+  margin: 1.5em 0 2em 0;
 }
 #footer a {
   color: #888;
