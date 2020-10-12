@@ -8,73 +8,83 @@
     <link type="text/css" rel="stylesheet" href="css/style.css" />
     <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
     <script type="text/javascript" src="js/jquery.cookie.js"></script>
-    <script type="text/javascript" src="js/cookie.js"></script>
     <script type="text/javascript" src="js/cubeout.js"></script>
 </head>
 
 <body>
-    <center>
 
+    <center>
 
         <div id="fps">&nbsp;</div>
 
         <div id="screenwrap">
-			<div id="pst_rlt_cs">
-		<canvas id="screen" class="shadow">
-                    <div id="dummy">Sorry, you need to check this page in browser that supports HTML5 canvas (like current
-                    version of Chrome, Opera, Firefox or Safari).</div>
-	        </canvas>
-				<div class="game-logo-cs">
-	            	              <img src="css/logo.png" alt="">
-				</div>
-	       <div id="difficulty" class="hud">
-	                <span id="speed" title="Change game speed">
-	                	<span id="speed_label_details">
-	                		<span id="sped_label_label">LEVEL</span>
-	                		<span id="sped_label_no"></span>
-	                	</span>
-	                <span class="button">0</span> 
-				<span class="button">1</span> 
-				<span class="button">2</span> 
-				<span class="button">3</span> 
-				<span class="button">4</span>
-	          </span>
-			    
-	                <span class="speed_label_text">Rotation</span>
-			<span id="rotSpeed" title="Change Rotation speed"> 
-				<span class="button">Slow</span> 
-				<span class="button">Medium</span> 
-				<span class="button">Fast</span>
-		        </span>                
-	                
-	                <span id="keys" title="Set custom keys">
-	                    <span class="button">Keys</span>
-	                </span>
+            <div id="pst_rlt_cs">
+                <canvas id="screen" class="shadow">
+                    <div id="dummy">Sorry, you need to check this page in browser that supports HTML5 canvas (like
+                        current
+                        version of Chrome, Opera, Firefox or Safari).</div>
+                </canvas>
+                <div class="game-logo-cs">
+                    <img src="css/logo.png" alt="">
+                </div>
+                <div id="difficulty" class="hud">
+                    <span id="speed" title="Change game speed">
+                        <span id="speed_label_details">
+                            <span id="sped_label_label">LEVEL</span>
+                            <span id="sped_label_no"></span>
+                        </span>
+                        <select id="speed-select">
+                            <option class="button" value="0">0</option>
+                            <option class="button" value="1">1</option>
+                            <option class="button" value="2">2</option>
+                            <option class="button" value="3">3</option>
+                            <option class="button" value="4">4</option>
+                        </select>
+                    </span>
 
-	                <span class="pit_label_text">PIT</span>
-	                <span id="pit" title="Change pit size">
-	                       <span class="button">3x3x10</span> 
-	                       <span class="button">5x5x10</span> 
-	                       <span class="button">5x5x12</span>
-	                </span>
-			    
-	                <span class="pieces_label_text">BLOCK SET</span>
-	                <span id="pieces" title="Change pieces complexity">
-	                        <span class="button">Flat</span> 
-				<span class="button">Basic</span> 
-				<span class="button">Extended</span>
-	                </span>
-	    </div>
-            
-		<div id="score_label">Score</div>
-	        <div id="score">&nbsp;</div>
+                    <span class="speed_label_text">Rotation</span>
 
-            <div id="column"><canvas id="screen2"></canvas></div>
+                    <select id="rotSpeed">
+                        <option class="button" value="slow">Slow</option>
+                        <option class="button" value="medium" selected>Medium</option>
+                        <option class="button" value="fast">Fast</option>
+                    </select>
 
-	</div>
+                    <span id="keys" title="Set custom keys">
+                        <span class="button">Keys</span>
+                    </span>
+
+                    <div class="bottom-options-container">
+
+
+                        <span class="highscore_label_text">HIGH SCORE</span>
+                        <div id="highscore">0</div>
+
+                        <span class="pit_label_text">PIT</span>
+                        <select id="pit">
+                            <option class="button" value="3x3x10">3x3x10</option>
+                            <option class="button" value="5x5x10" selected>5x5x10</option>
+                            <option class="button" value="5x5x12">5x5x12</option>
+                        </select>
+    
+                        <span class="pieces_label_text">BLOCK SET</span>
+                        <select id="pieces">
+                            <option class="button" value="flat">Flat</option>
+                            <option class="button" value="basic" selected>Basic</option>
+                            <option class="button" value="extended">Extended</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="score_label">Score</div>
+                <div id="score">&nbsp;</div>
+
+                <div id="column"><canvas id="screen2"></canvas></div>
+
+            </div>
             <div id="message" class="hud full">
                 <div id="description" class="shadow">
-                    <a href="http://en.wikipedia.org/wiki/Blockout">Blockout (3d Tetris)</a> in HTML5 from 1989.  <br />
+                    <a href="http://en.wikipedia.org/wiki/Blockout">Blockout (3d Tetris)</a> in HTML5 from 1989. <br />
                     <small><br />Works in Firefox, Chrome, Opera and Safari<br />
                         Best performance in Chrome and Opera</small>
                 </div>
@@ -87,11 +97,10 @@
                     Quit ESC<br />
                     Pause P<br />
                     <br />
-                    <span class="action">Press "B" to Start BlockOut</span>
+                    <span class="action">Press space to start</span>
                 </div>
 
-                <a href="#" class="hs" style="color: #009fa0; display:block;">Browser High Scores</a> </br>
-                <a href="scoreboard.php" style="display:block;">Global Ranking Scoreboard</a>
+                <span id="hs">High Scores</span>
             </div>
 
             <div id="keyset" class="hud full">
@@ -126,10 +135,10 @@
             <div id="getGamerName" class="hud">
                 <h2>Game Over</h2>
                 <br />
-                <input name="username" placeholder="Name" class="username-input" id="username" autocomplete="off" autofocus>
+                <input name="username" placeholder="Name" class="username-input" id="username" autocomplete="off"
+                    autofocus>
                 <br />
-                <span class="username-rule">Your name may contain only alphabets, digits and underscores </br> (max 20 characters)</span>
-                <button onclick="showScoreUI(event)" class="username-submit-btn">Save</button>
+                <button onclick="showScoreUI()">Save</button>
             </div>
 
             <div id="over" class="hud">
@@ -139,10 +148,7 @@
                 <br />
                 <span id="scorelabel">Score</span> <span id="finalscore">0</span><br />
                 <br />
-                <span class="action">Press B to play again</span>
-                
-                <a href="#" class="hs" style="color: #009fa0; margin-top: 35px; display:block;">High Scores in Browser</a> </br>
-                <a href="scoreboard.php" style="color: #009fa0; display:block;">High Scores on Server</a>
+                <span class="action">Press space to play again</span>
             </div>
 
             <div id="pause" class="hud">
@@ -153,15 +159,23 @@
 
         <div id="footer">
             <small><a href="mailto:gamereality@gmail.com">Feedback</a>
-                   <a href="https://twitter.com/jlivingstonsg">Twitter</a>
-                   <a href="https://github.com/jlivingstonsg/BlockOut">Source</a></small>
+                <a href="https://twitter.com/jlivingstonsg">Twitter</a>
+                <a href="https://github.com/jlivingstonsg/BlockOut">Source</a></small>
         </div>
     </center>
 
     <div id="layers"></div>
     <div id="log" class="shadow"></div>
 
+	<script>
+		// document.addEventListener('contextmenu', event => event.preventDefault());
+		// document.onkeydown = function(e) {
+		//     if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 86 || e.keyCode === 85 ||     e.keyCode === 117 || e.keycode === 17 || e.keycode === 85)) {//ctrl+u Alt+c, Alt+v will also be disabled sadly.
 
+		//     }
+		//     return false;
+		// };
+	</script>
 </body>
 
 </html>
