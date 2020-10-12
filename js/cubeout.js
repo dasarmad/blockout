@@ -1,1145 +1,3 @@
-// dimanionut Code - also there are small updates in other code
-// added support for mobile play - swipe 3 regions of the screen
-var game_over_flag = true;
-
-class Swipe {
-	mylatesttap = 0;
-	last_swipe_time = 0;
-	constructor(element) {
-        this.xDown = null;
-        this.yDown = null;
-        this.element = typeof(element) === 'string' ? document.querySelector(element) : element;
-
-        this.element.addEventListener('touchstart', function(evt) {
-            this.xDown = evt.touches[0].clientX;
-            this.yDown = evt.touches[0].clientY;
-			/*
-			var canvas = document.getElementById("screen");
-			var rect = canvas.getBoundingClientRect();
-			this.xCanvas = this.xDown - rect.left;
-			this.yCanvas = this.yDown - rect.top;
-			*/
-        }.bind(this), false);
-        
-    }
-
-    onLeftMove(callback) {
-        this.onLeftMove = callback;
-        return this;
-    }
-
-    onRightMove(callback) {
-        this.onRightMove = callback;
-        return this;
-    }
-
-    onUpMove(callback) {
-        this.onUpMove = callback;
-        return this;
-    }
-
-    onDownMove(callback) {
-        this.onDownMove = callback;
-        return this;
-    }
-	
-
-
-    onLeftRotate(callback) {
-        this.onLeftRotate = callback;
-        return this;
-    }
-
-    onRightRotate(callback) {
-        this.onRightRotate = callback;
-        return this;
-    }
-
-    onUpRotate(callback) {
-        this.onUpRotate = callback;
-        return this;
-    }
-
-    onDownRotate(callback) {
-        this.onDownRotate = callback;
-        return this;
-    }
-	
-	onZUpRotate(callback) {
-        this.onZUpRotate = callback;
-        return this;
-    }
-	
-	onZDownRotate(callback) {
-        this.onZDownRotate = callback;
-        return this;
-    }
-	
-	onDoubletap(callback) {
-       this.onDoubletap = callback;
-	   return this;
-    }
-
-		handleDoubleTap(evt){
-			var now = new Date().getTime();
-			var timesince = now - this.mylatesttap;
-			
-			if((timesince < 200) && (timesince > 0)){
-				this.onDoubletap(evt);
-			}
-			this.mylatesttap = new Date().getTime();
-			
-		}
-		handleTouchMove(evt) {
-			if ( !this.xDown 
-				|| !this.yDown
-				|| this.xDown < window.innerWidth/2 
-				|| game_over_flag==true) {
-				return 0;
-			}
-			    	
-			var xUp = evt.touches[0].clientX;
-			var yUp = evt.touches[0].clientY;
-
-			this.xDiff = this.xDown - xUp;
-			this.yDiff = this.yDown - yUp;
-
-			if ( Math.abs( this.xDiff ) > Math.abs( this.yDiff )) { // Most significant.
-				if ( this.xDiff > 0 ) {
-					this.onRightMove(evt);
-				} else {
-					this.onLeftMove(evt);
-				}
-			} else {
-				if ( this.yDiff > 0 ) {
-					this.onUpMove(evt);
-				} else {
-					this.onDownMove(evt);
-				}
-			}
-			
-			// Reset values.
-			this.xDown = null;
-			this.yDown = null;
-    }
-		handleTouchRotateUp(evt) {
-			if (! this.xDown || ! this.yDown
-				|| this.xDown >= window.innerWidth/2 
-				|| (this.yDown > 620*0.65)
-				|| game_over_flag==true) {
-				return 0;
-			}
-			
-			// console.log('up'+" " + this.yDown + " "+620*0.75);
-
-	    	var xUp = evt.touches[0].clientX;
-			var yUp = evt.touches[0].clientY;
-
-			this.xDiff = this.xDown - xUp;
-			this.yDiff = this.yDown - yUp;
-
-			if ( Math.abs( this.xDiff ) > Math.abs( this.yDiff )) { // Most significant.
-				if ( this.xDiff > 0 ) {
-					this.onLeftRotate(evt);
-				} else {
-					this.onRightRotate(evt);
-				}
-			} else {
-				if ( this.yDiff > 0 ) {
-					this.onUpRotate(evt);
-				} else {
-					this.onDownRotate(evt);
-				}
-			}
-			
-			// Reset values.
-			this.xDown = null;
-			this.yDown = null;
-    }
-	
-	handleTouchRotateDown(evt) {
-			if (! this.xDown || ! this.yDown
-				|| this.xDown >= window.innerWidth/2 
-				|| game_over_flag==true
-				|| (this.yDown < 620*0.65)
-			) {
-				return 0;
-			}
-			
-			
-			//console.log('down'+" " + this.yDown + " "+window.innerHeight*0.75);
-
-	    	var xUp = evt.touches[0].clientX;
-			var yUp = evt.touches[0].clientY;
-
-			this.xDiff = this.xDown - xUp;
-			this.yDiff = this.yDown - yUp;
-
-			if ( Math.abs( this.xDiff ) > Math.abs( this.yDiff )) { // Most significant.
-				if ( this.xDiff > 0 ) {
-					this.onZUpRotate(evt);
-				} else {
-					this.onZDownRotate(evt);
-				}
-			}
-			
-			// Reset values.
-			this.xDown = null;
-			this.yDown = null;
-    }
-    run() {
-        this.element.addEventListener('touchmove', function(evt) {
-			if (game_over_flag==false){
-				this.handleTouchMove(evt);
-				this.handleTouchRotateUp(evt);
-				this.handleTouchRotateDown(evt);
-				evt.preventDefault();
-			}
-        }.bind(this), false);
-		
-		this.element.addEventListener('touchend', function(evt) {
-			if (game_over_flag==false){
-				this.handleDoubleTap(evt);
-				evt.preventDefault();
-			}
-        }.bind(this), false);
-    }
-}
-
-window.onload = (event) => {
-	var last_swipe_time = 0;
-	game_over_flag = true;
-	$(document).bind('touchstart touchend touchmove', function(){
-	// handle swipe events
-	
-	var swiper = new Swipe(document.getElementById('screenwrap'));
-
-	// ------Translations--------
-	
-	swiper.onLeftMove(function(e) {
-		 if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		
-
-			var now = new Date().getTime();
-			var time_elapsed = now - last_swipe_time;
-			
-			if (time_elapsed>200){
-				translate_flag = 1;
-				dx = +DELTA;
-				last_swipe_time = new Date().getTime();
-			}
-		  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-	if (anim_flag) set_start(rotate_flag);
-  });
-	swiper.onRightMove(function(e) {
-		if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-			
-		if (time_elapsed>200){
-			translate_flag = 1;
-			dx = -DELTA;
-			last_swipe_time = new Date().getTime();
-		}
-		  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-	});
-	swiper.onUpMove(function(e) {
-      if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-			
-		if (time_elapsed>200){
-			translate_flag = 1;
-			dy = -DELTA;
-			last_swipe_time = new Date().getTime();
-
-		}
-		
-		  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-	});
-	swiper.onDownMove(function(e) {
-		if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-			
-		if (time_elapsed > 200){
-			translate_flag = 1;
-			dy = +DELTA;
-			last_swipe_time = new Date().getTime();
-		}
-		
-		  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-	});
-		
-	// ------Rotations--------
-		
-	swiper.onLeftRotate(function(e) {
-		 if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		
-
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-			
-		if (time_elapsed > 200){
-			rotate_flag = 1;
-			da[1] = +DELTA_ANGLE;
-			rot = roty;
-			last_swipe_time = new Date().getTime();
-		}
-		  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-  });
-  
-  swiper.onRightRotate(function(e) {
-		if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-			
-		if (time_elapsed>200){
-				rotate_flag = 1;
-				da[1] = - DELTA_ANGLE;
-				rot = invert(roty);
-				last_swipe_time = new Date().getTime();
-		}
-		
-		
-		  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-	});
-	
-	swiper.onUpRotate(function(e) {
-      if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-		if (time_elapsed>200){
-			rotate_flag = 1;
-			da[0] = -DELTA_ANGLE;
-			rot = invert(rotx);
-			last_swipe_time = new Date().getTime();
-		}
-		
-			  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-	});
-	swiper.onDownRotate(function(e) {
-		if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-			
-
-		
-		if (time_elapsed>200){
-			rotate_flag = 1;
-			da[0] = +DELTA_ANGLE;
-			rot = rotx;
-			last_swipe_time = new Date().getTime();
-		}
-		  
-		if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-		if (anim_flag) set_start(rotate_flag);
-	});
-	
-	swiper.onZUpRotate(function(e) {
-      if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-			if (time_elapsed>200){
-				rotate_flag = 1;
-				da[2] = DELTA_ANGLE;
-				rot = rotz;
-				last_swipe_time = new Date().getTime();
-			}
-		
-			  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-	});
-	
-	swiper.onZDownRotate(function(e) {
-		if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-		
-		var now = new Date().getTime();
-		var time_elapsed = now - last_swipe_time;
-		
-		if (time_elapsed>200){
-			rotate_flag = 1;
-			da[2] = -DELTA_ANGLE;
-			rot = invert(rotz);
-			last_swipe_time = new Date().getTime();
-		}
-		  
-		  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-
-	});
-	
-	// ------Double tap--------
-	
-	swiper.onDoubletap(function(e){
-		if (STATE.paused) {
-			pause(canvas, ctx);
-			return;
-		  }
-		  var translate_flag = 0;
-		  var rotate_flag = 0;
-		  var drop_flag = 0;
-		  var anim_flag = 0;
-
-		  var dx = 0,
-			dy = 0,
-			dz = 0;
-		  var da = [0, 0, 0];
-		  var rot;
-
-		  var rotx = [1, 0, 0, 0, 0, -1, 0, 1, 0];
-		  var roty = [0, 0, 1, 0, 1, 0, -1, 0, 0];
-		  var rotz = [0, -1, 0, 1, 0, 0, 0, 0, 1];
-
-		  var invert = function (m) {
-			var r = new Array(9);
-			r[0] = m[0];
-			r[1] = -m[1];
-			r[2] = -m[2];
-			r[3] = -m[3];
-			r[4] = m[4];
-			r[5] = -m[5];
-			r[6] = -m[6];
-			r[7] = -m[7];
-			r[8] = m[8];
-			return r;
-		  };
-			drop_flag = 1;
-			var nvoxels;
-
-		  var nvoxels;
-
-		  if (translate_flag) {
-			nvoxels = project_voxels(STATE.piece, STATE.new_x + dx, STATE.new_y + dy, STATE.new_z + dz, STATE.new_matrix);
-			if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-			  STATE.new_x += dx;
-			  STATE.new_y += dy;
-			  STATE.new_z += dz;
-			  anim_flag = 1;
-			}
-			e.preventDefault();
-		  }
-
-		  if (rotate_flag) {
-			STATE.new_matrix = matmult(rot, STATE.new_matrix);
-			nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z, STATE.new_matrix);
-			var deltas = overlap_diff(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
-			STATE.new_x += deltas[0];
-			STATE.new_y += deltas[1];
-			STATE.new_z += deltas[2];
-			STATE.new_angles = da;
-			anim_flag = 1;
-		  }
-
-		  if (drop_flag) {
-			for (var i = 0; i < PIT_DEPTH; ++i) {
-			  nvoxels = project_voxels(STATE.piece, STATE.new_x, STATE.new_y, STATE.new_z + DELTA, STATE.new_matrix);
-			  if (!is_overlap_layers(nvoxels, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, LAYERS)) {
-				STATE.new_z += DELTA;
-				anim_flag = 1;
-			  } else {
-				break;
-			  }
-			}
-			STATE.touchdown_flag = 1;
-			e.preventDefault();
-		  }
-
-		  if (anim_flag) set_start(rotate_flag);
-		});
-		swiper.run();
-	});
-};
-// dimanionut code
-
-
-// sourav_malo :: Game Object
-let game = {
-  createStatus : false,
-  id : '',
-  playerName : '',
-  set : '',
-  pit : '',
-  level : '',
-  score : '',
-  playedAt : '',
-  countryName : '',
-  ipAddress : ''
-};
-// sourav_malo :: Game Object
-
 /*****************************************************************************************/
 // Globals
 /*****************************************************************************************/
@@ -1155,9 +13,8 @@ var PIT_HEIGHT = 5;
 var PIT_DEPTH = 10;
 
 // fake perspective
-// before 30 30
-var ZSIZE_X = 25;
-var ZSIZE_Y = 25;
+var ZSIZE_X = 28;
+var ZSIZE_Y = 28;
 
 // color constants
 var PIECE_COLOR = [50, 0, 90];
@@ -1199,12 +56,10 @@ var ANIM_DURATION = MED_ANIM_DURATION;
 var FRAME_DELAY = 10;
 
 var DELTA = 1;
-
 var DELTA_ANGLE = Math.PI / 2;
 
 // pieces
 var SET = 'basic';
-
 
 // piece shapes
 var TEMPLATES = {
@@ -1480,7 +335,7 @@ var ID1 = -1,
   ID2 = -1;
 
 // game state
-var STATE = { setkeys: 0, settouch:0 };
+var STATE = { setkeys: 0 };
 
 // pause
 var PAUSE_ANIM = 1;
@@ -1545,8 +400,9 @@ function generate_layer(width, height) {
 
 function generate_layers(width, height, depth) {
   var layers = [];
+
   for (var z = 0; z < depth; ++z)
-  layers.push(generate_layer(width, height));
+    layers.push(generate_layer(width, height));
 
   return layers;
 }
@@ -1627,7 +483,7 @@ function pretty_number(x) {
   var pretty = '';
   for (var i = strx.length - 1; i >= 0; i--) {
     if ((strx.length - 1 - i) % 3 == 0 && (strx.length - 1 - i) > 0)
-    pretty = delimiter + pretty;
+      pretty = delimiter + pretty;
     pretty = strx[i] + pretty;
   }
   return pretty;
@@ -1691,9 +547,9 @@ function get_x_rotmatrix(angle) {
   var cos = Math.cos(angle);
   var sin = Math.sin(angle);
   return [
-     1, 0, 0,
-     0, cos, -sin,
-     0, sin, cos
+    1, 0, 0,
+    0, cos, -sin,
+    0, sin, cos
   ];
 }
 
@@ -1701,9 +557,9 @@ function get_y_rotmatrix(angle) {
   var cos = Math.cos(angle);
   var sin = Math.sin(angle);
   return [
-     cos, 0, sin,
-     0, 1, 0,
-     -sin, 0, cos
+    cos, 0, sin,
+    0, 1, 0,
+    -sin, 0, cos
   ];
 }
 
@@ -1711,9 +567,9 @@ function get_z_rotmatrix(angle) {
   var cos = Math.cos(angle);
   var sin = Math.sin(angle);
   return [
-     cos, -sin, 0,
-     sin, cos, 0,
-     0, 0, 1
+    cos, -sin, 0,
+    sin, cos, 0,
+    0, 0, 1
   ];
 }
 
@@ -1753,7 +609,7 @@ function bbox(lines) {
     }
     return { x: [minx, maxx], y: [miny, maxy], z: [minz, maxz] };
   } else
-  return { x: [0, 0], y: [0, 0], z: [0, 0] };
+    return { x: [0, 0], y: [0, 0], z: [0, 0] };
 }
 
 function bbox_voxels(points) {
@@ -1776,7 +632,7 @@ function bbox_voxels(points) {
     }
     return { x: [minx, maxx], y: [miny, maxy], z: [minz, maxz] };
   } else
-  return { x: [0, 0], y: [0, 0], z: [0, 0] };
+    return { x: [0, 0], y: [0, 0], z: [0, 0] };
 }
 
 /*****************************************************************************************/
@@ -1829,9 +685,9 @@ function draw_pit(canvas, ctx, width, height, depth, refresh_flag) {
 
       // r = g = b = Math.floor(64 * (0.5 + (2 * (depth - z)) / depth));
 
-            r = 0;
-            g = 255;
-            b = 0;
+      r = 0;
+      g = 255;
+      b = 0;
 
       ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
       //b = Math.floor(64*(0.1+1*(depth-z)/depth));
@@ -1976,8 +832,8 @@ function render_cube(canvas, ctx, width, height, depth, x, y, z, color, faces, o
     'hsla(' + Math.floor(color[0]) + ',' + Math.floor(color[1]) + '%,' +
     Math.floor(lightness) + '%,' + color[3] + ')';
   var sidecolor =
-    'hsla(' + Math.floor(color[0]) + ',' + Math.floor(color[1]) +    '%,' +
-    Math.floor(0.75 * lightness) +  '%,' + color[3] + ')';
+    'hsla(' + Math.floor(color[0]) + ',' + Math.floor(color[1]) + '%,' +
+    Math.floor(0.75 * lightness) + '%,' + color[3] + ')';
   var sidecolor2 = 'hsla(' + Math.floor(color[0]) + ',' + Math.floor(color[1]) + '%,' +
     Math.floor(0.5 * lightness) + '%,' + color[3] +
     ')';
@@ -1995,12 +851,12 @@ function render_cube(canvas, ctx, width, height, depth, x, y, z, color, faces, o
       lingrad.addColorStop(1.0, sidecolor2);
       ctx.fillStyle = lingrad;
     } else
-         ctx.fillStyle = sidecolor2;
+      ctx.fillStyle = sidecolor2;
 
     if (outline)
-       ctx.strokeStyle = outline;
+      ctx.strokeStyle = outline;
     else
-       ctx.strokeStyle = sidecolor2;
+      ctx.strokeStyle = sidecolor2;
     ctx.beginPath();
     ctx.moveTo(right1, top1);
     ctx.lineTo(right2, top2);
@@ -2014,9 +870,9 @@ function render_cube(canvas, ctx, width, height, depth, x, y, z, color, faces, o
   if (faces[1] && y + 1 < cy) {
     ctx.fillStyle = sidecolor;
     if (outline)
-        ctx.strokeStyle = outline;
+      ctx.strokeStyle = outline;
     else
-        ctx.strokeStyle = sidecolor;
+      ctx.strokeStyle = sidecolor;
     ctx.beginPath();
     ctx.moveTo(left1, bottom1);
     ctx.lineTo(left2, bottom2);
@@ -2030,9 +886,9 @@ function render_cube(canvas, ctx, width, height, depth, x, y, z, color, faces, o
   if (faces[2] && x > cx) {
     ctx.fillStyle = sidecolor2;
     if (outline)
-       ctx.strokeStyle = outline;
+      ctx.strokeStyle = outline;
     else
-       ctx.strokeStyle = sidecolor2;
+      ctx.strokeStyle = sidecolor2;
     ctx.beginPath();
     ctx.moveTo(left1, top1);
     ctx.lineTo(left2, top2);
@@ -2046,9 +902,9 @@ function render_cube(canvas, ctx, width, height, depth, x, y, z, color, faces, o
   if (faces[3] && y > cy) {
     ctx.fillStyle = sidecolor;
     if (outline)
-       ctx.strokeStyle = outline;
+      ctx.strokeStyle = outline;
     else
-       ctx.strokeStyle = sidecolor;
+      ctx.strokeStyle = sidecolor;
     ctx.beginPath();
     ctx.moveTo(right1, top1);
     ctx.lineTo(right2, top2);
@@ -2067,12 +923,12 @@ function render_cube(canvas, ctx, width, height, depth, x, y, z, color, faces, o
       lingrad.addColorStop(1.0, sidecolor2);
       ctx.fillStyle = lingrad;
     } else
-       ctx.fillStyle = topcolor;
+      ctx.fillStyle = topcolor;
 
     if (outline)
-       ctx.strokeStyle = outline;
+      ctx.strokeStyle = outline;
     else
-       ctx.strokeStyle = topcolor;
+      ctx.strokeStyle = topcolor;
     ctx.fillRect(left1, top1, xsize1, ysize1);
     ctx.strokeRect(left1, top1, xsize1, ysize1);
   }
@@ -2144,18 +1000,18 @@ function render_layer(canvas, ctx, layer, z, outline, depth) {
     for (var x = 0; x < row.length; ++x) {
       if (row[x] != '0') {
         if (x > 0)
-        faces[2] = !parseInt(row[x - 1]);
+          faces[2] = !parseInt(row[x - 1]);
         if (x < row.length - 1)
-        faces[0] = !parseInt(row[x + 1]);
+          faces[0] = !parseInt(row[x + 1]);
         if (y > 0)
-        faces[3] = !parseInt(layer[y - 1][x]);
+          faces[3] = !parseInt(layer[y - 1][x]);
         if (y < layer.length - 1)
-        faces[1] = !parseInt(layer[y + 1][x]);
+          faces[1] = !parseInt(layer[y + 1][x]);
 
         if (force_color)
-           color = depth - z - 1;
+          color = depth - z - 1;
         else
-           color = row[x] - 1;
+          color = row[x] - 1;
 
         render_cube(canvas, ctx, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, x, y, z, COLORS[color], faces, outline);
         faces = [1, 1, 1, 1, 0];
@@ -2170,9 +1026,9 @@ function render_layer(canvas, ctx, layer, z, outline, depth) {
     for (var x = 0; x < row.length; ++x) {
       if (row[x] != '0') {
         if (force_color)
-           color = depth - z - 1;
+          color = depth - z - 1;
         else
-           color = row[x] - 1;
+          color = row[x] - 1;
         render_cube(canvas, ctx, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, x, y, z, COLORS[color], faces, outline);
       }
     }
@@ -2187,7 +1043,7 @@ function render_layers(canvas, ctx, layers, refresh_flag) {
 
     // render bottom->top order
     for (var i = layers.length - 1; i >= 0; --i)
-    render_layer(canvas, ctx, layers[i], i, outline, layers.length);
+      render_layer(canvas, ctx, layers[i], i, outline, layers.length);
 
     if (CACHE_LAYERS == 0) {
       var cache = $('<canvas></canvas>');
@@ -2254,7 +1110,7 @@ function generate_piece(shape) {
   }
 
   for (var i in map)
-  lines.push(map[i]);
+    lines.push(map[i]);
 
   return { lines: lines, voxels: voxels };
 }
@@ -2303,8 +1159,8 @@ function render_pit(canvas, ctx) {
   render_layers(canvas, ctx, LAYERS, 1);
 
   // transparent overlay layer below shadow
-    ctx.fillStyle = 'rgba(25,25,25,0.75)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'rgba(25,25,25,0.75)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   render_shadow(canvas, ctx, 100, 0, 1);
 }
@@ -2381,13 +1237,13 @@ function overlap_diff(voxels, pwidth, pheight, pdepth) {
     !(bbox.z[0] < 0 && bbox.z[1] >= pdepth)
   ) {
     if (bbox.x[0] < 0) dx = -bbox.x[0];
-        if (bbox.x[1] > pwidth - 1) dx = pwidth - 1 - bbox.x[1];
+    if (bbox.x[1] > pwidth - 1) dx = pwidth - 1 - bbox.x[1];
 
     if (bbox.y[0] < 0) dy = -bbox.y[0];
-        if (bbox.y[1] > pheight - 1) dy = pheight - 1 - bbox.y[1];
+    if (bbox.y[1] > pheight - 1) dy = pheight - 1 - bbox.y[1];
 
     if (bbox.z[0] < 0) dz = -bbox.z[0];
-        if (bbox.z[1] > pdepth - 1) dz = pdepth - 1 - bbox.z[1];
+    if (bbox.z[1] > pdepth - 1) dz = pdepth - 1 - bbox.z[1];
   }
 
   return [dx, dy, dz];
@@ -2416,18 +1272,18 @@ function dump_layers(layers) {
   var height = layers[0].length;
   var width = layers[0][0].length;
 
-    var tmp = '';
+  var tmp = '';
   for (var z = 0; z < depth; ++z) {
     for (var y = 0; y < height; ++y) {
       for (var x = 0; x < width; ++x) {
         tmp += layers[z][y][x];
       }
-            tmp += '<br/>';
+      tmp += '<br/>';
     }
-        tmp += z + '<br/>';
+    tmp += z + '<br/>';
   }
 
-     $('#layers').html(tmp);
+  $('#layers').html(tmp);
 }
 
 function remove_layer(layers, n) {
@@ -2475,7 +1331,7 @@ function log(text) {
 /*****************************************************************************************/
 function test_cubes(canvas, ctx) {
   var faces = [1, 1, 1, 1, 1];
-    var outline = '#000';
+  var outline = '#000';
 
   render_cube(canvas, ctx, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, 0, 0, 0, [0, 100, 50, 1.0], faces, outline);
   render_cube(canvas, ctx, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, 4, 0, 0, [60, 100, 50, 1.0], faces, outline);
@@ -2501,10 +1357,10 @@ function test_cubes(canvas, ctx) {
 }
 
 function test_layer(canvas, ctx) {
-    var layer0 = ['11122', '30012', '30002', '30004', '00004'];
-    var layer1 = ['11122', '31112', '32022', '31044', '11144'];
-    var layer2 = ['11122', '01112', '32002', '30044', '00004'];
-    render_layer(canvas, ctx, layer1, 9, '#000');
+  var layer0 = ['11122', '30012', '30002', '30004', '00004'];
+  var layer1 = ['11122', '31112', '32022', '31044', '11144'];
+  var layer2 = ['11122', '01112', '32002', '30044', '00004'];
+  render_layer(canvas, ctx, layer1, 9, '#000');
   /*
     render_layer(canvas, ctx, layer1, 8, "#000");
     render_layer(canvas, ctx, layer1, 7, "#000");
@@ -2570,19 +1426,19 @@ function pause(canvas, ctx) {
     draw_pit(canvas, ctx, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH);
     render_layers(canvas, ctx, LAYERS, 1);
 
-        ID1 = setInterval(function () {
-        game_loop(canvas, ctx);
+    ID1 = setInterval(function () {
+      game_loop(canvas, ctx);
     }, FRAME_DELAY);
     if (AUTOFALL_DELAY)
-            ID2 = setInterval(function () {
+      ID2 = setInterval(function () {
         autofall(canvas, ctx);
       }, AUTOFALL_DELAY);
     STATE.paused = 0;
     STATE.pause_ended_flag = 1;
 
-        $('#score').css('display', 'block');
-        $('#column').css('display', 'block');
-        $('#pause').css('display', 'none');
+    $('#score').css('display', 'block');
+    $('#column').css('display', 'block');
+    $('#pause').css('display', 'none');
   } else {
     clearTimeout(ID1);
     clearTimeout(ID2);
@@ -2593,18 +1449,18 @@ function pause(canvas, ctx) {
 
       DP = 0;
 
-      var i,    n,    d,   r,   c,   h = rand_range(0, 360);
-            var bg = 'hsl(' + ((h + 30) % 360) + ',90%,5%)';
-            var zsort = function (a, b) { return b[2] - a[2]; };
-         var cwidth = canvas.width;
-         var cheight = canvas.height;
+      var i, n, d, r, c, h = rand_range(0, 360);
+      var bg = 'hsl(' + ((h + 30) % 360) + ',90%,5%)';
+      var zsort = function (a, b) { return b[2] - a[2]; };
+      var cwidth = canvas.width;
+      var cheight = canvas.height;
 
       PAUSE_WORMS = rand_range(0, 1);
 
       if (PAUSE_WORMS) {
-                c = 'hsla(' + h + ',90%,50%,0.5)';
-                bg = 'rgba(0,0,0,0.07)';
-                ctx.fillStyle = '#000';
+        c = 'hsla(' + h + ',90%,50%,0.5)';
+        bg = 'rgba(0,0,0,0.07)';
+        ctx.fillStyle = '#000';
         ctx.fillRect(0, 0, WIDTH, HEIGHT);
         n = rand_range(0, 1);
       }
@@ -2615,14 +1471,14 @@ function pause(canvas, ctx) {
 
         if (!PAUSE_WORMS) PAUSE_ELEMENTS.sort(zsort);
         for (i = 0; i < N_ELEMENTS; ++i) {
-           if (!PAUSE_WORMS)
-                      c = 'hsl(' + h + ',90%,' + ((40 * (PIT_DEPTH - PAUSE_ELEMENTS[i][2])) / PIT_DEPTH).toFixed(0) + '%)';
+          if (!PAUSE_WORMS)
+            c = 'hsl(' + h + ',90%,' + ((40 * (PIT_DEPTH - PAUSE_ELEMENTS[i][2])) / PIT_DEPTH).toFixed(0) + '%)';
           else {
             d = 20 * PAUSE_ELEMENTS[i][n];
-                        c = 'hsla(' + ((h + d).toFixed(0) % 360) + ',90%,50%,0.5)';
+            c = 'hsla(' + ((h + d).toFixed(0) % 360) + ',90%,50%,0.5)';
           }
 
-                    r = cap((10 * (PIT_DEPTH - PAUSE_ELEMENTS[i][2])) / PIT_DEPTH, 10);
+          r = cap((10 * (PIT_DEPTH - PAUSE_ELEMENTS[i][2])) / PIT_DEPTH, 10);
           point3d(ctx, cwidth, cheight, PIT_WIDTH, PIT_HEIGHT, PAUSE_ELEMENTS[i], c, r);
 
           PAUSE_ELEMENTS[i][2] -= PAUSE_ELEMENTS[i][3];
@@ -2680,7 +1536,7 @@ function reset_pit(type) {
 
 function init_game_keys(canvas, ctx) {
   var start_handler = function (e) {
-    if (!STATE.setkeys && e.which == 66) {
+    if (!STATE.setkeys && e.which == 32) {
       LAST_KEY_EL = 0;
       play_game(canvas, ctx, start_handler);
     }
@@ -2689,45 +1545,14 @@ function init_game_keys(canvas, ctx) {
     }
     set_key(e.which);
   };
-
   $(document).keydown(start_handler);
-  
-
 }
 
-
 function end_game(canvas, ctx) {
-  // sourav_malo :: Initialize score as game ends
-  game.score = parseInt(document.querySelector('#score').innerText);
-  // sourav_malo :: Initialize score as game ends
   $(document).unbind('keydown');
-
-  // sourav_malo :: Save Score in DB and Cookie
-  var xhttp = new XMLHttpRequest();
-  xhttp.open("POST", "api/create-score.php", true);
-  xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  xhttp.onreadystatechange = function() {
-    if(this.readyState == 4 && this.status == 200) {
-      
-	  //console.log(this.responseText);
-	  const responseText = JSON.parse(this.responseText);
-      if(responseText.status == "success") {
-        game.createStatus = true;
-        game.id = responseText.data.id;
-        game.playedAt = responseText.data.playedAt;
-        game.countryName = responseText.data.countryName;
-        game.ipAddress = responseText.data.ipAddress;
-        createUpdateBlockoutCookie(); // create cookie
-      }
-
-      // author's code
-      set_ui_gameover();
-      CANVAS = canvas;
-      CTX = ctx;
-    }
-  };
-  xhttp.send(`playerName=${game.playerName}&gameSet=${game.set}&gamePit=${game.pit}&gameLevel=${game.level}&playerScore=${game.score}`);
-  // sourav_malo :: Save Score in DB and Cookie
+  set_ui_gameover();
+  CANVAS = canvas;
+  CTX = ctx;
 }
 
 function handle_key(e, canvas, ctx) {
@@ -2882,15 +1707,6 @@ function handle_key(e, canvas, ctx) {
 }
 
 function play_game(canvas, ctx, start_handler) {
-  
-  game_over_flag = false;
-  
-  // sourav_malo :: Initialize level, set, pit as game starts
-  game.level = document.querySelector('#speed .button.on').innerText;
-  game.pit = document.querySelector('#pit .button.on').innerText;
-  game.set = document.querySelector('#pieces .button.on').innerText;
-  // sourav_malo :: Initialize level, set, pit as game starts
-  
   $(document).unbind('keydown', start_handler);
   set_ui_game();
   reset_pit(0);
@@ -2899,6 +1715,7 @@ function play_game(canvas, ctx, start_handler) {
   GAME_SPEED = SPEED;
   BLOCKS_PLACED = 0;
   AUTOFALL_DELAY = SPEED_MAP[GAME_SPEED];
+
   $('#speed .button').each(function () {
     $(this).removeClass('on');
     if ($(this).text().toLowerCase() == GAME_SPEED) $(this).addClass('on');
@@ -2914,16 +1731,14 @@ function play_game(canvas, ctx, start_handler) {
   STATE.refresh_layers_flag = 0;
   STATE.render_shadow_flag = 0;
 
-    START = new Date().getTime();
-    ID1 = setInterval(function () { game_loop(canvas, ctx);}, FRAME_DELAY);
+  START = new Date().getTime();
+  ID1 = setInterval(function () { game_loop(canvas, ctx); }, FRAME_DELAY);
   if (AUTOFALL_DELAY)
-      ID2 = setInterval(function () {  autofall(canvas, ctx);  }, AUTOFALL_DELAY);
+    ID2 = setInterval(function () { autofall(canvas, ctx); }, AUTOFALL_DELAY);
 
-	$(document).keydown(function (e) {
-		handle_key(e, canvas, ctx);
-	});
-	
-	
+  $(document).keydown(function (e) {
+    handle_key(e, canvas, ctx);
+  });
 }
 
 // fps counter globals
@@ -3071,7 +1886,6 @@ function game_over(canvas, ctx) {
   clearTimeout(ID2);
   render_pit(canvas, ctx);
   end_game(canvas, ctx);
-  game_over_flag = true;
 }
 
 function autofall(canvas, ctx) {
@@ -3091,15 +1905,14 @@ function autofall(canvas, ctx) {
 // User interface
 /*****************************************************************************************/
 function change_set(el) {
-  var which = el.innerHTML.toLowerCase();
-  SET = which;
+  SET = el;
 
   save_settings();
   reset_allowed();
 }
 
 function change_pit(el, canvas, ctx) {
-  var dimensions = el.innerHTML.toLowerCase().split('x');
+  var dimensions = el.split('x');
   PIT_WIDTH = parseInt(dimensions[0]);
   PIT_HEIGHT = parseInt(dimensions[1]);
   PIT_DEPTH = parseInt(dimensions[2]);
@@ -3115,7 +1928,7 @@ function change_pit(el, canvas, ctx) {
 }
 
 function change_speed(el) {
-  var speed = parseInt(el.innerHTML);
+  var speed = parseInt(el);
   SPEED = speed;
   AUTOFALL_DELAY = SPEED_MAP[SPEED];
 
@@ -3162,7 +1975,6 @@ function reset_allowed() {
 /*****************************************************************************************/
 function set_ui_start() {
   STATE.setkeys = 0;
-  STATE.settouch = 0;
   $('.hud').css('display', 'none');
   $('#column').css('display', 'none');
   $('#footer').css('display', 'block');
@@ -3175,19 +1987,6 @@ function set_ui_game() {
   $('#footer').css('display', 'none');
   $('#score').css('display', 'block');
   $('#column').css('display', 'block');
-  
-    /* sourav_malo :: Validating game username */
-  const usernameRegex = /^[A-Za-z0-9_]+$/; // Initializing username Regex
-  const usernameInput = document.querySelector('#username'); // Initlializing usernameInput field
-
-  usernameInput.addEventListener('input', () => {
-    if((usernameRegex.test(usernameInput.value) && usernameInput.value.length > 0 && usernameInput.value.length < 20) || (!usernameInput.value.length)) {
-      usernameInput.classList.remove('wrong');
-    } else {
-      usernameInput.classList.add('wrong');
-    }
-  });
-  /* sourav_malo :: Validating game username */
 }
 
 function set_ui_gameover() {
@@ -3296,7 +2095,7 @@ function load_keys() {
 
 function change_keys(canvas, ctx) {
   STATE.setkeys = 1;
-  
+
   $('.hud').css('display', 'none');
   $('#score').css('display', 'none');
   $('#keyset').css('display', 'block');
@@ -3330,33 +2129,15 @@ function load_score() {
       HIGHSCORE[chunks[0]] = {
         mode: chunks[1],
         score: parseInt(chunks[2]),
-       };
+      };
     }
   }
 }
 
 function generate_highscores() {
   var tmp = [];
-   // sourav_malo :: High Scores in Browser
-  getBlockoutCookies().forEach(eachBlockoutCookie => {
-    const eachBlockoutCookieValue = eachBlockoutCookie.value;
-    console.log(eachBlockoutCookieValue);
-    var row =
-      '<tr><td>' +
-      eachBlockoutCookieValue.split('|')[0] +
-      '</td><td>' +
-      eachBlockoutCookieValue.split('|')[2] +
-      '</td><td>' +
-      eachBlockoutCookieValue.split('|')[1] +
-      '</td><td>' +
-      eachBlockoutCookieValue.split('|')[3] +
-      "</td><td class='ths'>" +
-      eachBlockoutCookieValue.split('|')[4] +
-      '</td></tr>';
-    tmp.push(row);
-  });
-  // sourav_malo :: High Scores in Browser
   for (var name in HIGHSCORE) {
+    console.log(name);
     var chunks = HIGHSCORE[name].mode.split(':');
     var dim = chunks[0];
     var s = chunks[1];
@@ -3365,9 +2146,22 @@ function generate_highscores() {
     if (s == 'f') sfull = 'flat';
     else if (s == 'b') sfull = 'basic';
     else if (s == 'e') sfull = 'extended';
+    var row =
+      '<tr><td>' +
+      name +
+      '</td><td>' +
+      dim +
+      '</td><td>' +
+      sfull +
+      '</td><td>' +
+      x +
+      "</td><td class='ths'>" +
+      pretty_number(HIGHSCORE[name].score) +
+      '</td></tr>';
+    tmp.push(row);
   }
   return (
-    '<table><tr><th>Name</th><th>Pit</th><th>Set</th><th>Level</th><th>Score</th></tr>' +
+    '<table><tr><th>Name</th><th>Pit</th><th>Pieces</th><th>Speed</th><th>Score</th></tr>' +
     tmp.join(' ') + '</table>'
   );
 }
@@ -3420,18 +2214,17 @@ function refresh_column() {
 var rotateSpeed = "medium";
 
 function setRotateSpeed(spd) {
-    if (spd === "slow")
+  if (spd === "slow")
 
-      ANIM_DURATION = SLOW_ANIM_DURATION;
-    else if (spd === "fast") {
-        ANIM_DURATION = FAST_ANIM_DURATION;
-    } else {
-        ANIM_DURATION = MED_ANIM_DURATION;
-    }
+    ANIM_DURATION = SLOW_ANIM_DURATION;
+  else if (spd === "fast") {
+    ANIM_DURATION = FAST_ANIM_DURATION;
+  } else {
+    ANIM_DURATION = MED_ANIM_DURATION;
+  }
 }
 
 $(document).ready(function () {
-  
   copy_keymap(KEYMAP_DEFAULT, KEYMAP);
   copy_keymap(KEYMAP, KEYMAP_TMP);
 
@@ -3452,27 +2245,26 @@ $(document).ready(function () {
   reset_allowed();
 
   init_game_keys(canvas, ctx);
-  LAST_KEY_EL = 0;
+
   // difficulty settings
   $('#pieces .button').each(function () {
     if ($(this).text().toLowerCase() == SET) $(this).addClass('on');
   });
-  $('#pieces .button').click(function () {
-    change_set($(this).get(0));
+  $('#pieces').change(function () {
+    change_set($(this).val());
     $('#pieces .button').removeClass('on');
     $(this).addClass('on');
   });
 
 
-
-    $("#rotSpeed .button").each(function() {
-        if ($(this).text().toLowerCase() == rotateSpeed) $(this).addClass("on");
-    });
-    $("#rotSpeed .button").click(function() {
-        setRotateSpeed($(this).text().toLowerCase());
-        $("#rotSpeed .button").removeClass("on");
-        $(this).addClass("on");
-    });
+  $("#rotSpeed .button").each(function () {
+    if ($(this).text().toLowerCase() == rotateSpeed) $(this).addClass("on");
+  });
+  $("#rotSpeed").change(function () {
+    setRotateSpeed($(this).val());
+    $("#rotSpeed .button").removeClass("on");
+    $(this).addClass("on");
+  });
 
 
 
@@ -3480,9 +2272,8 @@ $(document).ready(function () {
   $('#pit .button').each(function () {
     if ($(this).text().toLowerCase() == pit_string) $(this).addClass('on');
   });
-  
-  $('#pit .button').click(function () {
-    change_pit($(this).get(0), canvas, ctx);
+  $('#pit').change(function () {
+    change_pit($(this).val(), canvas, ctx);
     $('#pit .button').removeClass('on');
     $(this).addClass('on');
   });
@@ -3490,8 +2281,10 @@ $(document).ready(function () {
   $('#speed .button').each(function () {
     if ($(this).text().toLowerCase() == SPEED) $(this).addClass('on');
   });
-  $('#speed .button').click(function () {
-    change_speed($(this).get(0));
+
+
+  $('#speed-select').change(function () {
+    change_speed($(this).val());
     $('#speed .button').removeClass('on');
     $(this).addClass('on');
   });
@@ -3522,42 +2315,32 @@ $(document).ready(function () {
   });
 
   // high scores
-  // before :   $('#hs').click(function () {
-  $('.hs').click(function () {
+  $('#hs').click(function () {
     show_highscores();
   });
-  
   $('#hs_back').click(function () {
     set_ui_start();
   });
 
-
-  // dimanionut code
-  $('#controls').bind('touchend', function (evt) {
-	if (!STATE.settouch){  
-		LAST_KEY_EL = 0;
-		play_game(canvas, ctx, null);
-		STATE.settouch = 1;
-	}
-  });
-  $('#over').bind('touchend', function (evt) {
-	if (!STATE.settouch){  
-		LAST_KEY_EL = 0;
-		play_game(canvas, ctx, null);
-		STATE.settouch = 1;
-	}
-  });
-  // dimanionut code
-  	
-	
   refresh_column();
+
+  var allscores = [];
+  for (var name in HIGHSCORE) {
+    allscores.push(HIGHSCORE[name].score);
+  }
+  if(allscores.length>0){
+    $('#highscore').text(pretty_number(Math.max(...allscores)));
+  }
+
 });
 
-function showScoreUIAuthor() {
+function showScoreUI() {
   USERNAME = document.getElementById('username').value;
 
-  USERNAME = game.playerName;
-  game.playerName = '';
+  USERNAME = USERNAME ? USERNAME.toLowerCase() : '';
+
+  clearTimeout(ID1);
+  clearTimeout(ID2);
 
   var hs = 'Score:';
   var dh = difhash(SET, PIT_WIDTH, PIT_HEIGHT, PIT_DEPTH, SPEED);
@@ -3570,7 +2353,7 @@ function showScoreUIAuthor() {
     save_score();
     hs = "<span id='highscore'>New high score:</span>";
   }
-		
+
   $('#scorelabel').html(hs);
   $('#username-label').text(USERNAME);
   $('#finalscore').text(pretty_number(STATE.score));
@@ -3581,123 +2364,7 @@ function showScoreUIAuthor() {
   init_game_keys(CANVAS, CTX);
 
   USERNAME = '';
-  
-  // here code for restarting
-  STATE.settouch = 0;
-  game_over_flag = false;
 }
-
-// sourav_malo :: Update Score DB by AJAX
-function updateScore() {
-  return new Promise((resolve, reject) => {
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "api/update-score.php", true);
-    xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    xhttp.onreadystatechange = function() {
-      if(this.readyState == 4 && this.status == 200) {
-        resolve(this.responseText);
-      }
-    };
-    xhttp.send(`id=${parseInt(game.id)}&playerName=${game.playerName}`);
-  });
-}
-// sourav_malo :: Update Score DB by AJAX
-
-// sourav_malo :: Check username availability
-function checkUsername() {
-  return new Promise((resolve, reject) => {
-    var xhttp = new XMLHttpRequest();
-    xhttp.open("POST", "api/check-username.php", true);
-    xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-    xhttp.onreadystatechange = function() {
-      if(this.readyState == 4 && this.status == 200) {
-        resolve(this.responseText);
-      }
-    };
-    xhttp.send(`playerName=${game.playerName}`);
-  });
-}
-// sourav_malo :: Check username availability
-
-// sourav_malo:: Form Submit
-function showScoreUI(event) {
-  event.preventDefault();
-  // successful insertion operation
-  if(game.createStatus) {
-    const usernameSubmitBtn = document.querySelector('.username-submit-btn');
-    // no request is being processed at this moment
-    if(!usernameSubmitBtn.classList.contains('not-allowed')) {
-      usernameSubmitBtn.classList.add('not-allowed'); // disallowing repeated submissions
-      const usernameInput = document.querySelector('#username');
-      // username is relevant to the constraints
-      if(!usernameInput.classList.contains('wrong')) {
-        game.playerName = usernameInput.value;
-        // non empty name insertion
-        if(game.playerName.length) {
-          checkUsername().then(response => {
-            // username already exists
-            if(response > 0) {
-              // saving empty username
-              if(confirm("Oops! Username already exists. Do you want to save an empty username?")) {
-                game.playerName = '';
-                usernameInput.setAttribute('value', '');  // Making Username Empty
-                usernameSubmitBtn.classList.remove('not-allowed'); // allowing submission again
-                showScoreUIAuthor(); // Invoking showScoreUIAuthor() to see score
-              // submit again
-              } else {
-                usernameSubmitBtn.classList.remove('not-allowed'); // allowing submission again
-              }
-            // new username
-            } else {
-              updateScore().then(response => {
-                // successful update in DB
-                if(response) {
-                  createUpdateBlockoutCookie(); // Invoking createUpdateBlockoutCookie() to update name cookie
-                  showScoreUIAuthor(); // Invoking showScoreUIAuthor() to see score
-                // unsuccessful update in DB
-                } else {
-                  alert("Network Error! Please, try again.");
-                }
-                usernameSubmitBtn.classList.remove('not-allowed'); // allowing submission again
-              });
-            }
-          });
-        // empty name insertion
-        } else {
-          // save score by previously saved cookie name
-          if(confirm(`Ouch! Empty name inserted. Do you want to save your score by recently inserted name?`)) {
-            game.playerName = getLastBlockoutCookiePlayerName();
-            updateScore().then(response => {
-              // successful update in DB
-              if(response) {
-                usernameInput.setAttribute('value', '');  // Making Username Empty
-                createUpdateBlockoutCookie(); // Invoking createUpdateBlockoutCookie() to update name cookie
-                showScoreUIAuthor(); // Invoking showScoreUIAuthor() to see score
-              // unsuccessful update in DB
-              } else {
-                alert("Network Error! Please, try again.");
-              }
-              usernameSubmitBtn.classList.remove('not-allowed'); // allowing submission again
-            });
-          // saving the empty name
-          } else {
-            usernameInput.setAttribute('value', ''); // Making Username Empty
-            showScoreUIAuthor(); // Invoking showScoreUIAuthor() to see score
-            game.createStatus = false;
-            usernameSubmitBtn.classList.remove('not-allowed'); // allowing submission again
-          }
-        }
-      // username is irrelevant to the constraints
-      } else {
-        usernameSubmitBtn.classList.remove('not-allowed'); // allowing submission again
-      }
-    }
-  // unsuccessful insertion operation
-  } else {
-    showScoreUIAuthor(); // Invoking showScoreUIAuthor() to see score
-  }
-}
-// sourav_malo:: Form Submit
 
 // Local variables:
 // indent-tabs-mode: nil
